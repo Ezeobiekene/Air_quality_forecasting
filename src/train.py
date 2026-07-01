@@ -40,7 +40,7 @@ def create_features(df, target_col="pm2_5", horizon=3):
 
 
 def train_pipeline():
-    df = pd.read_csv("raw_air_quality.csv", index_col=0, parse_dates=True)
+    df = pd.read_csv("../data/raw_air_quality.csv", index_col=0, parse_dates=True)
     featured_df = create_features(df)
 
     split_idx = int(len(featured_df) * 0.8)
@@ -85,7 +85,7 @@ def train_pipeline():
     print(f"Model Accuracy Rating:        {accuracy_percentage:.2f}%")
     print("=========================================\n")
 
-    joblib.dump(model, "air_quality_model.pkl")
+    joblib.dump(model, "../models/air_quality_model.pkl")
     joblib.dump(feature_cols, "model_features.pkl")
     print("Model trained and saved successfully.")
 

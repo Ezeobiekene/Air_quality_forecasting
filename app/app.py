@@ -1,3 +1,4 @@
+import os
 import joblib
 import numpy as np
 import pandas as pd
@@ -6,16 +7,24 @@ from fastapi.responses import HTMLResponse
 
 app = FastAPI(title="Live Air Quality Prediction Terminal")
 
-# Load our high-performing model artifact
-model = joblib.load("air_quality_model.pkl")
+# Dynamically calculate the absolute path to the project root
+# (Since app.py is inside /app/app/, going up two levels gets us to the root)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+MODEL_PATH = os.path.join(BASE_DIR, "models", "air_quality_model.pkl")
+DATA_PATH = os.path.join(BASE_DIR, "data", "raw_air_quality.csv")
+
+# Load our high-performing model artifact safely using the absolute path
+model = joblib.load(MODEL_PATH)
 
 
 def fetch_live_sensor_metrics():
     """Simulates real-time ingestion from a live streaming data pipe."""
     try:
-        df = pd.read_csv("raw_air_quality.csv", index_col=0, parse_dates=True)
+        # Use the dynamic absolute data path
+        df = pd.read_csv(DATA_PATH, index_col=0, parse_dates=True)
         latest_reading = df.iloc[-1]
-
+        
         return {
             "pm25": float(latest_reading["pm2_5"]),
             "pm10": float(latest_reading["pm10"]),
@@ -28,14 +37,8 @@ def fetch_live_sensor_metrics():
         }
     except Exception:
         return {
-            "pm25": 12.4,
-            "pm10": 22.1,
-            "ozone": 31.5,
-            "no2": 15.0,
-            "lag_1h": 12.0,
-            "lag_2h": 11.8,
-            "lag_24h": 14.2,
-            "rolling_6h": 12.2,
+            "pm25": 12.4, "pm10": 22.1, "ozone": 31.5, "no2": 15.0,
+            "lag_1h": 12.0, "lag_2h": 11.8, "lag_24h": 14.2, "rolling_6h": 12.2,
         }
 
 
